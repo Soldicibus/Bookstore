@@ -1,17 +1,25 @@
 {
-  "name": "practice",
+  "name": "serj-bookstore-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node app.js"
-  },
-  "keywords": [],
-  "author": "",
+  "description": "none",
   "license": "ISC",
+  "author": "DER MANN DER MYTHOS DIE LEGENDE DIE KUGEL UND DIE WAFFE SERHII",
   "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "test": "node test-db.js",
+    "dev": "nodemon app.js",
+    "start": "node app.js"
+  },
   "dependencies": {
-    "express": "^5.2.1"
+    "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
   }
 }
