@@ -8,7 +8,9 @@ class GenreModel {
       return result.rows && result.rows.length > 0 ? result.rows : null;
     } catch (error) {
       console.error(`Database error finding genres`, error);
-      throw new Error("Could not retrieve genres data due to a database error.");
+      throw new Error(
+        "Could not retrieve genres data due to a database error.",
+      );
     }
   }
 

@@ -4,11 +4,12 @@ import jwt from "jsonwebtoken";
 const ACCESS_TOKEN_EXPIRES = "1h";
 const REFRESH_TOKEN_EXPIRES = "7d";
 
-class AuthService { //and kind of a model too
+class AuthService {
+  //and kind of a model too
   static async login(username, email, password) {
     if (!username && !email) throw new Error("username or email required");
     if (!password) throw new Error("password required");
-    
+
     // Debug logging
     console.log(`[AuthService] Attempting login for: ${username || email}`);
 
@@ -24,12 +25,13 @@ class AuthService { //and kind of a model too
       dbUser = dbRes.rows[0];
 
       // Debug success
-      console.log(`[AuthService] Login successful for user_id: ${dbUser.user_id}`);
-
-      const rolesResult = await pool.query(
-        `SELECT * FROM get_user_role($1)`,
-        [dbUser.user_id],
+      console.log(
+        `[AuthService] Login successful for user_id: ${dbUser.user_id}`,
       );
+
+      const rolesResult = await pool.query(`SELECT * FROM get_user_role($1)`, [
+        dbUser.user_id,
+      ]);
       const roles = rolesResult.rows.map((r) => r.role_name.toLowerCase());
       const primaryRole = roles[0] || "student";
 
@@ -132,10 +134,9 @@ class AuthService { //and kind of a model too
     }
   }
   static async switchRole(userId, targetRole) {
-    const rolesResult = await pool.query(
-      `SELECT * FROM get_user_role($1)`,
-      [userId],
-    );
+    const rolesResult = await pool.query(`SELECT * FROM get_user_role($1)`, [
+      userId,
+    ]);
     const roles = rolesResult.rows.map((r) => r.role_name.toLowerCase());
 
     if (!roles.includes(targetRole.toLowerCase())) {

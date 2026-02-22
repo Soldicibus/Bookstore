@@ -8,7 +8,9 @@ class ThemeModel {
       return result.rows && result.rows.length > 0 ? result.rows : null;
     } catch (error) {
       console.error(`Database error finding thematics`, error);
-      throw new Error("Could not retrieve thematics data due to a database error.");
+      throw new Error(
+        "Could not retrieve thematics data due to a database error.",
+      );
     }
   }
 
@@ -21,7 +23,9 @@ class ThemeModel {
       return result.rows && result.rows.length > 0 ? result.rows[0] : null;
     } catch (error) {
       console.error(`Database error finding thematic ${id}:`, error);
-      throw new Error("Could not retrieve thematic data due to a database error.");
+      throw new Error(
+        "Could not retrieve thematic data due to a database error.",
+      );
     }
   }
 

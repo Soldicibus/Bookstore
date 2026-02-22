@@ -126,7 +126,10 @@ class UserModel {
     try {
       await db.query(query, values);
     } catch (error) {
-      console.error(`Database error adding favorite book for user ${user_id}:`, error);
+      console.error(
+        `Database error adding favorite book for user ${user_id}:`,
+        error,
+      );
       throw new Error("Could not add favorite book due to a database error.");
     }
   }

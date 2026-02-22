@@ -8,7 +8,9 @@ class PublisherModel {
       return result.rows && result.rows.length > 0 ? result.rows : null;
     } catch (error) {
       console.error(`Database error finding publishers`, error);
-      throw new Error("Could not retrieve publishers data due to a database error.");
+      throw new Error(
+        "Could not retrieve publishers data due to a database error.",
+      );
     }
   }
 
@@ -21,7 +23,9 @@ class PublisherModel {
       return result.rows && result.rows.length > 0 ? result.rows[0] : null;
     } catch (error) {
       console.error(`Database error finding publisher ${id}:`, error);
-      throw new Error("Could not retrieve publisher data due to a database error.");
+      throw new Error(
+        "Could not retrieve publisher data due to a database error.",
+      );
     }
   }
 
