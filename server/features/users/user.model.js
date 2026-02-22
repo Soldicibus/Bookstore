@@ -13,7 +13,7 @@ class UserModel {
     }
   }
   static async findById(id, db = pool) {
-    const query = `SELECT * FROM users WHERE user_id=$1`;
+    const query = `SELECT * FROM users WHERE id=$1`;
     const values = [id];
 
     try {
@@ -116,6 +116,18 @@ class UserModel {
         throw new Error(`Role ID cannot be empty.`);
       }
       throw new Error("Could not assign role to user due to a database error.");
+    }
+  }
+
+  static async addFavoriteBook(user_id, book_id, db = pool) {
+    const query = `INSERT INTO Favorites (user_id, book_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`;
+    const values = [user_id, book_id];
+
+    try {
+      await db.query(query, values);
+    } catch (error) {
+      console.error(`Database error adding favorite book for user ${user_id}:`, error);
+      throw new Error("Could not add favorite book due to a database error.");
     }
   }
 }
