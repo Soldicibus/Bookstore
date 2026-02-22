@@ -2,7 +2,7 @@
 -- ENUM TYPES
 -- =========================
 
-CREATE TYPE language_enum AS ENUM ('UKR', 'ENG', 'FRA', 'GER', 'RUS');
+CREATE TYPE language_enum AS ENUM ('UKR', 'ENG', 'FRA', 'GER', 'RUS', 'SLO');
 
 CREATE TYPE order_status_enum AS ENUM (
     'Нове',

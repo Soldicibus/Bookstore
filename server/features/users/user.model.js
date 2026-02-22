@@ -25,9 +25,9 @@ class UserModel {
     }
   }
 
-  static async create(username, email, password, db = pool) {
-    const query = `CALL proc_register_user($1::character varying, $2::character varying, $3::character varying, NULL::integer)`;
-    const values = [username, email, password];
+  static async create(username, email, password, role, db = pool) {
+    const query = `CALL proc_register_user($1::character varying, $2::character varying, $3::character varying, $4::integer, NULL::integer)`;
+    const values = [username, email, password, role];
     try {
       const result = await db.query(query, values);
       return result.rows[0]?.new_user_id;
@@ -90,7 +90,7 @@ class UserModel {
     try {
       await db.query(query, values);
     } catch (error) {
-      console.error(`Database error chabging passwor:`, error);
+      console.error(`Database error changing password:`, error);
       if (error.code === "22003") {
         throw new Error(`User with ID ${user_id} does not exist.`);
       }
@@ -98,6 +98,24 @@ class UserModel {
         throw new Error(`Password cannot be empty.`);
       }
       throw new Error("Could not change password due to a database error.");
+    }
+  }
+
+  static async assign_role(user_id, role_id, db = pool) {
+    const query = `CALL proc_assign_role_to_user($1::integer, $2::integer)`;
+    const values = [user_id, role_id];
+
+    try {
+      await db.query(query, values);
+    } catch (error) {
+      console.error(`Database error assigning role to user ${user_id}:`, error);
+      if (error.code === "22003") {
+        throw new Error(`User with ID ${user_id} does not exist.`);
+      }
+      if (error.code === "23514") {
+        throw new Error(`Role ID cannot be empty.`);
+      }
+      throw new Error("Could not assign role to user due to a database error.");
     }
   }
 }
