@@ -65,16 +65,6 @@ class UserService {
     }
   }
 
-  static async getUserData(userId, db = pool) {
-    try {
-      const userData = await UserModel.getUserData(userId, db);
-      return { userData };
-    } catch (error) {
-      console.error("Service Error in getUserData:", error.message);
-      throw error;
-    }
-  }
-
   static async assignRole(userId, roleId, db = pool) {
     try {
       await UserModel.assign_role(userId, roleId, db);

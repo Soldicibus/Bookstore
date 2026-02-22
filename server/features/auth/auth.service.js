@@ -1,4 +1,4 @@
-import pool from "../../lib/db.js";
+import pool from "../../db.js";
 import jwt from "jsonwebtoken";
 
 const ACCESS_TOKEN_EXPIRES = "1h";

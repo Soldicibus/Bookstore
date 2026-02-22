@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import mainRouter from "./features/router.js";
+import router from "./features/router.js";
 //import authMiddleware from "./features/auth/authMiddleware.js";
 //import authRoutes from "./features/auth/authRoutes.js";
 
@@ -33,11 +33,8 @@ app.use(express.json());
 
 app.use((req,res,next)=>{ console.log(req.method, req.originalUrl); next(); });
 
-// Public auth endpoints must be accessible without a Bearer token.
-//app.use("/api/auth", authRoutes);
-
-// Everything else under /api requires authentication.
-//app.use("/api", authMiddleware, mainRouter);
+app.use("/api/auth", router); // auth routes are included in mainRouter
+app.use("/api", router);
 
 app.listen(5000, '0.0.0.0', () => {
   console.log('API running to get beer on all local interfaces');

@@ -86,19 +86,6 @@ class UserController {
     }
   }
 
-  static async getUserData(req, res, next) {
-    try {
-      const { id } = req.params;
-      if (!id) {
-        return res.status(400).json({ error: "User ID is required" });
-      }
-      const result = await UserService.getUserData(id);
-      return res.status(200).json(result);
-    } catch (error) {
-      return next(error);
-    }
-  }
-
   static async assignRole(req, res, next) {
     try {
       // The router defines this route as POST "/:id/assign-role" so prefer params.id

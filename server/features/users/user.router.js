@@ -21,9 +21,6 @@ router.delete("/:id", UserController.deleteUser);
 // Reset password
 router.post("/reset-password", UserController.resetPassword);
 
-// Get user data
-router.get("/:id/data", UserController.getUserData);
-
 // Assign role to user
 router.post("/:id/assign-role", UserController.assignRole);
 
