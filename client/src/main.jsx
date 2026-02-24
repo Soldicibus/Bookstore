@@ -1,8 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import React, { useEffect } from "react";
-import Mainpage from "./components/pages/Mainpage";
-import Sidebar from "./components/Sidebar";
+import Mainpage from "./components/pages/mainpage_cabinet/Mainpage";
 import Auth from "./components/pages/Auth";
 import Cabinet from "./components/pages/Cabinet";
 import NotFound from "./components/pages/NotFound";
@@ -32,7 +31,6 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Sidebar />
 
       <Routes>
         <Route path="/auth" element={<Auth />} />
