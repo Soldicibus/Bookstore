@@ -2,7 +2,13 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
+}
+
+.body {
+  background-color: #f4f4f4;
+  margin-left: 10vw;
+  margin-right: 10vw;
 }
 
 .layout {
@@ -12,12 +18,20 @@
 
 /* HEADER */
 .header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: #332E2E;
+}
+
+.header-content {
   display: flex;
   align-items: center;
   gap: 20px;
-  background-color: #2e2e2e;
   color: white;
   padding: 12px 20px;
+  margin-left: 3vw;
+  margin-right: 3vw;
 }
 
 .logo {
@@ -26,6 +40,11 @@
   gap: 8px;
   font-size: 22px;
   font-weight: bold;
+}
+
+.logo img {
+  width: 30px;
+  height: 30px;
 }
 
 .catalog-btn {
@@ -38,12 +57,16 @@
 }
 
 .search {
-  flex: 1;
+  margin: 0 auto;
   display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 50vw;
 }
 
 .search input {
   flex: 1;
+  min-width: 30vw;
   padding: 8px;
   border: none;
   border-radius: 6px 0 0 6px;
@@ -111,7 +134,8 @@
 }
 
 .section {
-  margin-bottom: 40px;
+  margin-top: 1vw;
+  margin-bottom: 2vw;
 }
 
 .section-header {

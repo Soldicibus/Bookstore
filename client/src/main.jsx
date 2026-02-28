@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { createRoot } from "react-dom/client";
 import React, { useEffect } from "react";
 import Mainpage from "./components/pages/mainpage_cabinet/Mainpage";
+import Header from "./components/pages/layout/Header.jsx";
 import Auth from "./components/pages/Auth";
 import Cabinet from "./components/pages/mainpage_cabinet/Cabinet";
 import NotFound from "./components/pages/mainpage_cabinet/NotFound";
@@ -31,6 +32,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <Header />
 
       <Routes>
         <Route path="/auth" element={<Auth />} />
