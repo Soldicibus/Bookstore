@@ -33,7 +33,7 @@ class AuthService {
         dbUser.user_id,
       ]);
       const roles = rolesResult.rows.map((r) => r.role_name.toLowerCase());
-      const primaryRole = roles[0] || "student";
+      const primaryRole = roles[0] || "customer";
 
       const payload = {
         userId: dbUser.user_id,
@@ -74,25 +74,39 @@ class AuthService {
     if (!password) throw new Error("password required");
     try {
       const res = await pool.query(
-        "SELECT proc_register_user($1, $2, $3) AS new_id",
+        "CALL proc_register_user($1, $2, $3)",
         [username, email, password],
       );
-      if (res.rowCount === 0) throw new Error("Registration failed");
-      const newId = res.rows[0].new_id;
+      
+      // Get the newly created user
+      const userRes = await pool.query(
+        "SELECT id, role_id FROM users WHERE username = $1",
+        [username]
+      );
+      
+      if (userRes.rowCount === 0) throw new Error("Registration failed");
+      const newId = userRes.rows[0].id;
+      
+      // Get role name
+      const roleRes = await pool.query(
+        "SELECT name FROM roles WHERE id = $1",
+        [userRes.rows[0].role_id]
+      );
+      const roleName = roleRes.rows[0]?.name || "customer";
 
       const payload = {
         userId: newId,
         username,
         email,
-        roles: ["student"],
-        role: "student",
+        roles: [roleName.toLowerCase()],
+        role: roleName.toLowerCase(),
       };
 
       const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
         expiresIn: ACCESS_TOKEN_EXPIRES,
       });
       const refreshToken = jwt.sign(
-        { userId: newId, roles: ["student"] },
+        { userId: newId, roles: [roleName.toLowerCase()] },
         process.env.REFRESH_SECRET,
         { expiresIn: REFRESH_TOKEN_EXPIRES },
       );
@@ -100,8 +114,8 @@ class AuthService {
       return {
         accessToken,
         refreshToken,
-        role: "student",
-        roles: ["student"],
+        role: roleName.toLowerCase(),
+        roles: [roleName.toLowerCase()],
         user: { id: newId, username },
       };
     } catch (error) {
@@ -111,7 +125,7 @@ class AuthService {
       if (error.code === "23514") {
         throw new Error(`Username or email cannot be empty`);
       }
-      throw new Error(error);
+      throw new Error(error.message);
     }
   }
 
@@ -123,7 +137,7 @@ class AuthService {
         {
           userId: payload.userId,
           roles: payload.roles,
-          role: payload.roles[0] || "student",
+          role: payload.roles[0] || "customer",
         },
         process.env.JWT_SECRET,
         { expiresIn: ACCESS_TOKEN_EXPIRES },

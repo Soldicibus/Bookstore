@@ -26,7 +26,7 @@ class UserModel {
   }
 
   static async create(username, email, password, role, db = pool) {
-    const query = `CALL proc_register_user($1::character varying, $2::character varying, $3::character varying, $4::integer, NULL::integer)`;
+    const query = `CALL proc_register_user($1::character varying, $2::character varying, $3::text, NULL::integer, $4::integer)`;
     const values = [username, email, password, role];
     try {
       const result = await db.query(query, values);

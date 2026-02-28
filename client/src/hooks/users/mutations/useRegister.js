@@ -1,21 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as authAPI from "../../../api/auth.js";
 
-export function useLogin() {
+export function useRegister() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: authAPI.login,
+    mutationFn: authAPI.register,
     onSuccess: (data) => {
-      // Invalidate and refetch user data after successful login
       if (data?.accessToken) {
         localStorage.setItem("accessToken", data.accessToken);
       }
       qc.invalidateQueries({ queryKey: ["me"] });
-    },
-    onError: (error) => {
-      // Make sure token is cleared on login failure
-      localStorage.removeItem("accessToken");
-      qc.clear();
     },
   });
 }

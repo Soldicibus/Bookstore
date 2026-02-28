@@ -1,8 +1,8 @@
 CREATE OR REPLACE PROCEDURE proc_register_user(
-    IN  p_username VARCHAR(50),
-    IN  p_email    VARCHAR(60),
+    IN  p_username VARCHAR(30),
+    IN  p_email    VARCHAR(50),
     IN  p_password TEXT,
-	IN  p_role_id integer,
+    IN  p_role_id  INT DEFAULT 3, -- Default role_id to 3 (customer)
     OUT new_user_id INT
 )
 LANGUAGE plpgsql
@@ -43,13 +43,13 @@ BEGIN
     /* ---------- Hash password ---------- */
     p_password := crypt(p_password, gen_salt('bf'));
 
-    /* ---------- PASS OUT PARAM DIRECTLY ---------- */
+    /* ---------- Create user and assign role ---------- */
     CALL proc_create_user(
         p_username,
         p_email,
         p_password,
+        p_role_id,
         new_user_id
     );
-	CALL proc_assign_role_to_user(new_user_id,p_role_id);
 END;
 $$;
