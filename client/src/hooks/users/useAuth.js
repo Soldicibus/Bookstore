@@ -1,4 +1,3 @@
-import { useMe } from "./queries/useMe";
 import { useLogin } from "./mutations/useLogin";
 import { useLogout } from "./mutations/useLogout";
 import { useRegister } from "./mutations/useRegister";
@@ -9,7 +8,6 @@ import { getCurrentUser } from "../../utils/auth";
  * Comprehensive auth hook that provides access to all auth-related data and functions
  */
 export function useAuth() {
-  const me = useMe();
   const login = useLogin();
   const logoutMutation = useLogout();
   const register = useRegister();
@@ -17,9 +15,9 @@ export function useAuth() {
   const currentUser = getCurrentUser();
 
   return {
-    // User data
-    user: me.data,
-    isLoading: me.isLoading,
+    // User data - from localStorage
+    user: currentUser,
+    isLoading: false,
     isAuthenticated: isAuth,
     currentUser,
     
@@ -39,6 +37,6 @@ export function useAuth() {
     logoutError: logoutMutation.error,
     
     // Combined loading state
-    isLoadingAuth: me.isLoading || login.isPending || register.isPending,
+    isLoadingAuth: login.isPending || register.isPending,
   };
 }

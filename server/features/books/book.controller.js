@@ -21,6 +21,17 @@ class BookController {
     }
   }
 
+  static async getFavoriteBooks(req, res, next) {
+    try {
+      const { userId } = req.params;
+      if (!userId) return res.status(400).json({ error: "User ID is required" });
+      const result = await BookService.getFavoriteBooks(userId);
+      return res.status(200).json(result);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
   static async createBook(req, res, next) {
     try {
       const data = req.body;
@@ -122,6 +133,76 @@ class BookController {
       const { thematicId } = req.body;
       if (!id || !thematicId) return res.status(400).json({ error: "book id and thematicId are required" });
       const result = await BookService.removeThematicFromBook(id, thematicId);
+      return res.status(200).json(result);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  static async getBooksByGenre(req, res, next) {
+    try {
+      const { genreId } = req.params;
+      if (!genreId) return res.status(400).json({ error: "Genre ID is required" });
+      const result = await BookService.getBooksByGenre(genreId);
+      return res.status(200).json(result);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  static async getBooksByAuthor(req, res, next) {
+    try {
+      const { authorId } = req.params;
+      if (!authorId) return res.status(400).json({ error: "Author ID is required" });
+      const result = await BookService.getBooksByAuthor(authorId);
+      return res.status(200).json(result);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  static async getBooksByThematic(req, res, next) {
+    try {
+      const { thematicId } = req.params;
+      if (!thematicId) return res.status(400).json({ error: "Thematic ID is required" });
+      const result = await BookService.getBooksByThematic(thematicId);
+      return res.status(200).json(result);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  static async getAuthorsByBook(req, res, next) {
+    try {
+      const { bookId } = req.params;
+      if (!bookId) return res.status(400).json({ error: "Book ID is required" });
+      const result = await BookService.getAuthorsByBook(bookId);
+      return res.status(200).json(result);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  static async addToFavorites(req, res, next) {
+    try {
+      const { id: bookId, userId } = req.params;
+      if (!bookId || !userId) {
+        return res.status(400).json({ error: "Book ID and User ID are required" });
+      }
+      const result = await BookService.addToFavorites(userId, bookId);
+      return res.status(200).json(result);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
+  static async removeFromFavorites(req, res, next) {
+    try {
+      const { id: bookId, userId } = req.params;
+      if (!bookId || !userId) {
+        return res.status(400).json({ error: "Book ID and User ID are required" });
+      }
+      const result = await BookService.removeFromFavorites(userId, bookId);
       return res.status(200).json(result);
     } catch (error) {
       return next(error);

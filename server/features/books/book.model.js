@@ -142,6 +142,116 @@ class BookModel {
       throw new Error("Could not remove thematic from book due to a database error.");
     }
   }
+
+  static async findByGenre(genreId, db = pool) {
+    const query = `
+      SELECT DISTINCT b.* FROM books b
+      INNER JOIN BookGenres bg ON b.id = bg.book_id
+      WHERE bg.genre_id = $1
+    `;
+    const values = [genreId];
+
+    try {
+      const result = await db.query(query, values);
+      return result.rows && result.rows.length > 0 ? result.rows : null;
+    } catch (error) {
+      console.error(`Database error finding books by genre ${genreId}:`, error);
+      throw new Error("Could not retrieve books by genre due to a database error.");
+    }
+  }
+
+  static async findByAuthor(authorId, db = pool) {
+    const query = `
+      SELECT DISTINCT b.* FROM books b
+      INNER JOIN BookAuthors ba ON b.id = ba.book_id
+      WHERE ba.author_id = $1
+    `;
+    const values = [authorId];
+
+    try {
+      const result = await db.query(query, values);
+      return result.rows && result.rows.length > 0 ? result.rows : null;
+    } catch (error) {
+      console.error(`Database error finding books by author ${authorId}:`, error);
+      throw new Error("Could not retrieve books by author due to a database error.");
+    }
+  }
+
+  static async findByThematic(thematicId, db = pool) {
+    const query = `
+      SELECT DISTINCT b.* FROM books b
+      INNER JOIN BookThematics bt ON b.id = bt.book_id
+      WHERE bt.theme_id = $1
+    `;
+    const values = [thematicId];
+
+    try {
+      const result = await db.query(query, values);
+      return result.rows && result.rows.length > 0 ? result.rows : null;
+    } catch (error) {
+      console.error(`Database error finding books by thematic ${thematicId}:`, error);
+      throw new Error("Could not retrieve books by thematic due to a database error.");
+    }
+  }
+
+  static async findAuthorsByBook(bookId, db = pool) {
+    const query = `
+      SELECT DISTINCT a.* FROM authors a
+      INNER JOIN BookAuthors ba ON a.id = ba.author_id
+      WHERE ba.book_id = $1
+    `;
+    const values = [bookId];
+
+    try {
+      const result = await db.query(query, values);
+      return result.rows && result.rows.length > 0 ? result.rows : null;
+    } catch (error) {
+      console.error(`Database error finding authors for book ${bookId}:`, error);
+      throw new Error("Could not retrieve authors for book due to a database error.");
+    }
+  }
+
+  static async addToFavorites(userId, bookId, db = pool) {
+    const query = `INSERT INTO Favorites (user_id, book_id) VALUES ($1, $2) RETURNING *`;
+    const values = [userId, bookId];
+
+    try {
+      const result = await db.query(query, values);
+      return result.rows && result.rows.length > 0 ? result.rows[0] : null;
+    } catch (error) {
+      console.error(`Database error adding book ${bookId} to favorites for user ${userId}:`, error);
+      throw new Error("Could not add book to favorites due to a database error.");
+    }
+  }
+
+  static async removeFromFavorites(userId, bookId, db = pool) {
+    const query = `DELETE FROM Favorites WHERE user_id=$1 AND book_id=$2 RETURNING *`;
+    const values = [userId, bookId];
+
+    try {
+      const result = await db.query(query, values);
+      return result.rows && result.rows.length > 0 ? result.rows[0] : null;
+    } catch (error) {
+      console.error(`Database error removing book ${bookId} from favorites for user ${userId}:`, error);
+      throw new Error("Could not remove book from favorites due to a database error.");
+    }
+  }
+
+  static async findFavoritesByUser(userId, db = pool) {
+    const query = `
+      SELECT f.* FROM Favorites f WHERE f.user_id = $1
+    `;
+    const values = [userId];
+    console.log(`Finding favorite books for user ${userId} with query:`, query, "and values:", values);
+
+    try {
+      const result = await db.query(query, values);
+      return result.rows && result.rows.length > 0 ? result.rows : null;
+    } catch (error) {
+      console.error(`Database error finding favorite books for user ${userId}:`, error);
+      throw new Error("Could not retrieve favorite books due to a database error.");
+    }
+  }
 }
 
 export default BookModel;

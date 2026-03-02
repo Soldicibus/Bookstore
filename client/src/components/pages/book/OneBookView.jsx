@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useBook } from "../../../hooks/books";
+import { useBook, useIsFavorite, useAddFavorites, useRemoveFavorites, useIsFavorites, useFavoriteBooks } from "../../../hooks/books";
 import { useReviews } from "../../../hooks/reviews";
-import { useCreateReview } from "../../../hooks/reviews";
-import { useAddItemToCart } from "../../../hooks/carts";
 import { useAuth } from "../../../hooks/users";
+import { getBookCover } from "../../../utils/bookUtils";
 import "./OneBookView.css";
 
 export default function OneBookView() {
@@ -14,14 +13,38 @@ export default function OneBookView() {
   
   const { data: book, isLoading: bookLoading } = useBook(id);
   const { data: reviews = [], isLoading: reviewsLoading } = useReviews();
-  const createReview = useCreateReview();
-  const addToCart = useAddItemToCart();
+  const isFavorite = useIsFavorite(parseInt(id));
+  const addFavMutation = useAddFavorites();
+  const removeFavMutation = useRemoveFavorites();
   
   const [quantity, setQuantity] = useState(1);
   const [reviewText, setReviewText] = useState("");
   const [rating, setRating] = useState(5);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
-  const bookReviews = reviews.filter(r => r.book_id === parseInt(id) || r.bookId === parseInt(id));
+  // Debug: Log book data
+  React.useEffect(() => {
+    if (book) {
+      console.log("Book data:", book);
+      console.log("Book description:", book.description);
+    }
+  }, [book]);
+
+  const bookReviews = React.useMemo(() => {
+    // Get reviews from API
+    const apiReviews = Array.isArray(reviews) 
+      ? reviews.filter(r => r.book_id === parseInt(id) || r.bookId === parseInt(id))
+      : [];
+    
+    // Get demo reviews from localStorage
+    const storedReviews = localStorage.getItem("reviews");
+    const demoReviews = storedReviews 
+      ? JSON.parse(storedReviews).filter(r => r.book_id === parseInt(id))
+      : [];
+    
+    // Combine both
+    return [...apiReviews, ...demoReviews];
+  }, [reviews, id]);
   const avgRating = bookReviews.length > 0
     ? (bookReviews.reduce((sum, r) => sum + (r.rating || 0), 0) / bookReviews.length).toFixed(1)
     : 0;
@@ -33,12 +56,63 @@ export default function OneBookView() {
     }
 
     try {
-      // Demo: Just show a message since we need user's cart ID
+      // Demo implementation: Store in localStorage
+      const cart = localStorage.getItem("cart");
+      const cartItems = cart ? JSON.parse(cart) : [];
+      
+      const existingItem = cartItems.find(item => item.id === book.id);
+      
+      if (existingItem) {
+        existingItem.quantity += quantity;
+      } else {
+        cartItems.push({
+          id: book.id,
+          title: book.title,
+          price: book.price,
+          cover_url: book.cover_url,
+          quantity: quantity
+        });
+      }
+      
+      localStorage.setItem("cart", JSON.stringify(cartItems));
       alert(`Додано ${quantity} копій "${book?.title}" до кошика`);
       setQuantity(1);
     } catch (error) {
       console.error("Error adding to cart:", error);
       alert("Помилка при додаванні до кошика");
+    }
+  };
+
+  const isFavoriteBook = useIsFavorites(parseInt(id), user.id || user.userId || user.sub);
+  const {data: favorites = []} = useFavoriteBooks(user.id);
+  console.log(`Favorites for user ${user.id}:`, favorites);
+
+  const handleToggleFavorite = async () => {
+    if (!isAuthenticated || !user) {
+      navigate("/auth");
+      return;
+    }
+
+    // Extract userId using helper function
+    const userId = user.id || user.userId || user.sub || null;
+    
+    if (!userId) {
+      console.error("User ID not found in user object:", user);
+      alert("Помилка: не вдалося отримати ID користувача");
+      return;
+    }
+
+    try {
+      console.log(`Toggling favorite for book ${id} and user ${userId}. Currently favorite: ${isFavoriteBook}`);
+      if (isFavoriteBook) {
+        removeFavMutation.mutate({ bookId: parseInt(id), userId });
+        console.log(`Removing book ${id} from favorites for user ${userId}`);
+      } else {
+        addFavMutation.mutate({ bookId: parseInt(id), userId });
+        console.log(`Adding book ${id} to favorites for user ${userId}`);
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
     }
   };
 
@@ -53,20 +127,37 @@ export default function OneBookView() {
       return;
     }
 
+    setIsSubmittingReview(true);
     try {
-      await createReview.mutateAsync({
-        book_id: id,
-        user_id: user?.id,
-        rating,
+      // Demo implementation: Store in localStorage
+      const storedReviews = localStorage.getItem("reviews");
+      const allReviews = storedReviews ? JSON.parse(storedReviews) : [];
+      
+      const newReview = {
+        id: Date.now(),
+        book_id: parseInt(id),
+        user_id: user?.id || 1,
+        user_name: user?.username || 'Користувач',
+        rating: rating,
         comment: reviewText,
-      });
+        created_at: new Date().toISOString()
+      };
+      
+      allReviews.push(newReview);
+      localStorage.setItem("reviews", JSON.stringify(allReviews));
       
       setReviewText("");
       setRating(5);
       alert("Рецензія додана!");
+      
+      // In a real app, you would refetch reviews here
+      // For demo, just refresh the page to see changes
+      window.location.reload();
     } catch (error) {
       console.error("Error creating review:", error);
       alert("Помилка при додаванні рецензії");
+    } finally {
+      setIsSubmittingReview(false);
     }
   };
 
@@ -86,8 +177,8 @@ export default function OneBookView() {
 
       <div className="book-detail">
         <div className="book-cover-section">
-          {book.cover_url ? (
-            <img src={book.cover_url} alt={book.title} className="book-cover-large" />
+          {book.cover_url || book.title ? (
+            <img src={getBookCover(book)} alt={book.title} className="book-cover-large" />
           ) : (
             <div className="cover-placeholder">Без обкладинки</div>
           )}
@@ -99,9 +190,13 @@ export default function OneBookView() {
           <div className="book-meta">
             {book.author && <p className="author"><strong>Автор:</strong> {book.author}</p>}
             {book.publisher && <p className="publisher"><strong>Видавництво:</strong> {book.publisher}</p>}
+            {book.publisher_id && !book.publisher && <p className="publisher"><strong>ID Видавництва:</strong> {book.publisher_id}</p>}
             {book.publication_year && <p className="year"><strong>Рік видання:</strong> {book.publication_year}</p>}
-            {book.pages && <p className="pages"><strong>Сторінок:</strong> {book.pages}</p>}
+            {book.page_amount && <p className="pages"><strong>Сторінок:</strong> {book.page_amount}</p>}
             {book.isbn && <p className="isbn"><strong>ISBN:</strong> {book.isbn}</p>}
+            {book.language && <p className="language"><strong>Мова:</strong> {book.language === 'UKR' ? 'Українська' : book.language === 'ENG' ? 'Англійська' : book.language}</p>}
+            {book.quantity !== undefined && <p className="quantity"><strong>На складі:</strong> {book.quantity > 0 ? `${book.quantity} копій` : 'Немає в наявності'}</p>}
+            {book.sale_status && <p className="sale-status"><strong>Статус:</strong> {book.sale_status}</p>}
           </div>
 
           <div className="rating-section">
@@ -109,7 +204,8 @@ export default function OneBookView() {
           </div>
 
           <div className="price-section">
-            <p className="price">{book.price ? `${book.price} грн` : 'Ціна не вказана'}</p>
+            <p className="price">{book.price ? `${parseFloat(book.price).toFixed(2)} грн` : '💰 Ціна не вказана'}</p>
+            {book.quantity === 0 && <p className="out-of-stock">⚠️ Немає в наявності</p>}
           </div>
 
           {book.description && (
@@ -119,7 +215,14 @@ export default function OneBookView() {
             </div>
           )}
 
-          {book.genres && book.genres.length > 0 && (
+          {!book.description && (
+            <div className="description">
+              <h3>Опис</h3>
+              <p>Опис не доступний для цієї книги.</p>
+            </div>
+          )}
+
+          {book.genres && Array.isArray(book.genres) && book.genres.length > 0 && (
             <div className="genres-section">
               <h3>Жанри</h3>
               <div className="genres-list">
@@ -136,16 +239,26 @@ export default function OneBookView() {
               <input
                 type="number"
                 min="1"
-                max="100"
+                max={book.quantity || 100}
                 value={quantity}
                 onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+                disabled={book.quantity === 0}
               />
             </div>
             <button 
               className="add-to-cart-btn"
               onClick={handleAddToCart}
+              disabled={book.quantity === 0}
             >
-              Додати в кошик
+              {book.quantity === 0 ? 'Немає в наявності' : 'Додати в кошик'}
+            </button>
+            <button 
+              className={`favorite-btn ${isFavoriteBook ? 'active' : ''}`}
+              onClick={handleToggleFavorite}
+              disabled={addFavMutation.isPending || removeFavMutation.isPending}
+              title={isFavoriteBook ? 'Видалити з улюблених' : 'Додати в улюблені'}
+            >
+              {isFavoriteBook ? '❤️' : '🤍'} Улюблене
             </button>
           </div>
         </div>
@@ -174,9 +287,9 @@ export default function OneBookView() {
               />
               <button 
                 onClick={handleAddReview}
-                disabled={createReview.isPending}
+                disabled={isSubmittingReview}
               >
-                {createReview.isPending ? "Додавання..." : "Додати рецензію"}
+                {isSubmittingReview ? "Додавання..." : "Додати рецензію"}
               </button>
             </div>
           </div>

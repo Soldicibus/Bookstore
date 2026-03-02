@@ -2,7 +2,7 @@ import React from "react";
 
 function NotFound() {
   return (
-    <main style={{ height: "100vh", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "#00633d" }}>
+    <main style={{ height: "100vh", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "#2a8f00" }}>
         <div style={{ color: "white", textAlign: "center" }}>
         <h1>404 Not Found</h1>
         <audio autoPlay>

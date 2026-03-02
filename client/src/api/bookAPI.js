@@ -7,7 +7,8 @@ export const getAllBooks = async () => {
 
 export const getBookById = async (id) => {
 	const res = await api.get(`/books/${id}`);
-	return res.data;
+	// Handle both wrapped and unwrapped responses
+	return res.data.book || res.data.data || res.data;
 };
 
 export const createBook = async (payload) => {
@@ -54,3 +55,44 @@ export const removeThematicFromBook = async (bookId, thematicId) => {
 	const res = await api.post(`/books/${bookId}/remove-thematic`, { thematicId });
 	return res.data;
 };
+
+// Filtering endpoints
+export const getBooksByGenre = async (genreId) => {
+	const res = await api.get(`/books/genre/${genreId}`);
+	return res.data.books || res.data;
+};
+
+export const getBooksByThematic = async (thematicId) => {
+	const res = await api.get(`/books/thematic/${thematicId}`);
+	return res.data.books || res.data;
+};
+
+export const getBooksByAuthor = async (authorId) => {
+	const res = await api.get(`/books/author/${authorId}`);
+	return res.data.books || res.data;
+};
+
+export const getAuthorsByBook = async (bookId) => {
+	const res = await api.get(`/books/${bookId}/authors`);
+	return res.data.authors || res.data;
+};
+
+export const addToFavorites = async (bookId, userId) => {
+	const res = await api.post(`/books/favorite/${bookId}/${userId}`);
+	return res.data;
+};
+
+export const removeFromFavorites = async (bookId, userId) => {
+	const res = await api.delete(`/books/favorite/${bookId}/${userId}`);
+	return res.data;
+};
+
+export const getFavorites = async () => {
+	const res = await api.get(`/books/favorites`);
+	return res.data.books || res.data;
+};
+
+export const getFavoriteBooks = async (userId) => {
+	const res = await api.get(`/books/favorite/${userId}`);
+	return res.data.books || res.data;
+}
