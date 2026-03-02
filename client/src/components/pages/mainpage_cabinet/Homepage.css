@@ -221,9 +221,35 @@
   margin-bottom: 15px;
 }
 
+/* Update this section */
 .section-box {
-  height: 180px;
-  background-color: #e8e8e8;
+  display: flex;       /* Arrange cards in a row */
+  gap: 20px;           /* Space between cards */
+  padding: 20px;
+  background-color: #fff; 
   border-radius: 12px;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
+  overflow-x: auto;    /* Allow horizontal scrolling */
+  align-items: stretch; /* This is the magic line that makes them equal height */
+}
+
+/* Ensure the MainSection behaves the same way */
+.MainSection .section-box {
+  display: flex;
+  gap: 20px;
+  padding: 15px;
+  min-height: 350px;
+  background-color: #fff;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  overflow-x: auto;
+}
+
+/* Hide scrollbar for a cleaner look (optional) */
+.section-box::-webkit-scrollbar {
+  height: 8px;
+}
+.section-box::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
 }
